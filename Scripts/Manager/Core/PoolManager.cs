@@ -7,8 +7,8 @@ public class PoolManager
     #region Pool
     class Pool
     {
-        public GameObject Original { get; private set; }//실제 오브젝트
-        public Transform Root { get; private set; }//상위 폴더
+        public GameObject Original { get; private set; }
+        public Transform Root { get; private set; }
 
         Stack<Poolable> _poolStack = new Stack<Poolable>();
 
@@ -16,11 +16,9 @@ public class PoolManager
         {
             Original = original;
             Poolable poolable = original.GetComponent<Poolable>();
-            if (poolable.IsNotParent == false)
-            {
-                Root = new GameObject().transform;
-                Root.name = $"{original.name}_Root";
-            }
+            Root = new GameObject().transform;
+            Root.name = $"{original.name}_Root";
+
             return poolable;
         }
 
@@ -36,8 +34,7 @@ public class PoolManager
             if (poolable == null)
                 return;
 
-            if (poolable.IsNotParent == false)
-                poolable.transform.SetParent(Root);
+            poolable.transform.SetParent(Root);
             poolable.gameObject.SetActive(false);
 
             _poolStack.Push(poolable);
@@ -52,12 +49,9 @@ public class PoolManager
             else
                 poolable = Create();
 
-            if (poolable.IsNotParent == false)
-            {
-                if (parent == null)
-                    poolable.transform.parent = Managers.Scene.CurrentScene.transform;
-                poolable.transform.SetParent(parent);
-            }
+            if (parent == null)
+                poolable.transform.parent = Managers.Scene.CurrentScene.transform;
+            poolable.transform.SetParent(parent);
             poolable.gameObject.SetActive(true);
 
             return poolable;
@@ -81,8 +75,7 @@ public class PoolManager
     {
         Pool pool = new Pool();
         Poolable poolable = pool.Init(original);
-        if (poolable.IsNotParent == false)
-            pool.Root.parent = _root;
+        pool.Root.parent = _root;
 
         _pool.Add(original.name, pool);
     }

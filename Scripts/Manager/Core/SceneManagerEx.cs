@@ -1,22 +1,44 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
 public class SceneManagerEx
 {
     public BaseScene CurrentScene { get { return GameObject.FindObjectOfType<BaseScene>(); } }
+    public string NextScene;
 
     public void LoadScene(Define.Scene type)
     {
-        Managers.Clear();
+        if (NextScene == GetSceneName(type)) return;
 
-        SceneManager.LoadScene(GetSceneName(type));
+        NextScene = GetSceneName(type);
+
+        if (CurrentScene.SceneType == Define.Scene.Logo)
+            SceneManager.LoadScene(GetSceneName(type));
+        else
+            FadeScene().Forget();
     }
 
-    string GetSceneName(Define.Scene type)
+    async UniTask FadeScene()
     {
-        string name = System.Enum.GetName(typeof(Define.Scene), type);
+        var fade = Managers.UI.ShowSceneUI<UI_FadeEffect>();
+        fade.FadeEffect(UI_FadeEffect.Options.FadeOut, 3f).Forget();
+        await UniTask.WaitWhile(() => { return !fade.IsStop; });
+        LoadingScene();
+    }
+
+    void LoadingScene()
+    {
+        Managers.Clear();
+        SceneManager.LoadScene(GetSceneName(Define.Scene.Loading));
+    }
+
+    public string GetSceneName(Define.Scene type)
+    {
+        string name = Enum.GetName(typeof(Define.Scene), type);
         return name;
     }
 

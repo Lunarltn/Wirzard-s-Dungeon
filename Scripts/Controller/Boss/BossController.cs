@@ -1,14 +1,11 @@
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using RayFire;
 using RootMotion.FinalIK;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
-using static RootMotion.FinalIK.HitReaction;
-using static UnityEngine.Rendering.DebugUI;
 
 public class BossController : BaseController
 {
@@ -107,6 +104,7 @@ public class BossController : BaseController
     {
         _uIBossStat = Managers.UI.ShowSceneUI<UI_BossStat>();
         _uIBossStat.SetUI(stat);
+        _uIBossStat.SetBossName(stat.Name);
         _uIBossStat.gameObject.SetActive(false);
     }
 
@@ -162,8 +160,8 @@ public class BossController : BaseController
         if (IsDead)
             return;
 
+        detection.BossRoom.IsClear = true;
         agent.ResetPath();
-        GetComponent<TheKiwiCoder.BehaviourTreeRunner>().enabled = false;
         Managers.Inventory.DropItem(stat.DropItem);
         animator.SetTrigger(DIE_HASH);
         Managers.Quest.CountQuestRequest(Define.QuestCategory.Hunt, ID, 1);

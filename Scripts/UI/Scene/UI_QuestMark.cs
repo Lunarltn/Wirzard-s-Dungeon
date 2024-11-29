@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class UI_QuestMark : UI_Scene
 {
@@ -70,7 +69,7 @@ public class UI_QuestMark : UI_Scene
     {
         if (_images.ContainsKey(npcIndex) == false)
             return;
-        Debug.Log(questState);
+
         switch (questState)
         {
             case Define.QuestStatus.None:

@@ -311,12 +311,16 @@ public class HotKeyManager
 
     public void Clear()
     {
-        _dashSkillSlot.CancleToken();
-        _dashSkillSlot.DisposeToken();
+        _dashSkillSlot?.CancleToken();
+        _dashSkillSlot?.DisposeToken();
+        if (_skillSlot == null)
+            return;
         for (int i = 0; i < _skillSlot.Length; i++)
         {
             _skillSlot[i].CancleToken();
             _skillSlot[i].DisposeToken();
+            if (_useItemSlot == null)
+                return;
             if (i < _useItemSlot.Length)
             {
                 _useItemSlot[i].CancleToken();

@@ -15,18 +15,18 @@ public class UI_EventHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     public Action<PointerEventData> OnExitHandler = null;
     public Action<PointerEventData> OnScrollHandler = null;
 
+    bool _isQuit;
+
     public void OnPointerDown(PointerEventData eventData)
     {
         if (OnDownHandler != null)
             OnDownHandler.Invoke(eventData);
-        Managers.Input.ChangeMouseCurser(Define.Cursor.Select);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
         if (OnUpHandler != null)
             OnUpHandler.Invoke(eventData);
-        Managers.Input.ChangeMouseCurser(Define.Cursor.Basic);
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -45,23 +45,37 @@ public class UI_EventHandler : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     {
         if (OnEndDragHandler != null)
             OnEndDragHandler.Invoke(eventData);
+        Managers.Input.ChangeMouseCurser(Define.Cursor.Select);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (OnEnterHandler != null)
             OnEnterHandler.Invoke(eventData);
+        Managers.Input.ChangeMouseCurser(Define.Cursor.Select);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         if (OnExitHandler != null)
             OnExitHandler.Invoke(eventData);
+        Managers.Input.ChangeMouseCurser(Define.Cursor.Basic);
     }
 
     public void OnScroll(PointerEventData eventData)
     {
         if (OnScrollHandler != null)
             OnScrollHandler.Invoke(eventData);
+    }
+
+    private void OnDisable()
+    {
+        if (_isQuit) return;
+        Managers.Input.ChangeMouseCurser(Define.Cursor.Basic);
+    }
+
+    private void OnApplicationQuit()
+    {
+        _isQuit = true;
     }
 }

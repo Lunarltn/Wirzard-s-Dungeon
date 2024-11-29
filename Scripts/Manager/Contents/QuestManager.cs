@@ -1,10 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.PackageManager.Requests;
 using UnityEngine;
-using UnityEngine.Networking.Types;
-using static UnityEditor.Progress;
 
 public class Quest
 {
@@ -120,9 +117,10 @@ public class Quest
             CompletedQuest();
     }
     //QuestStatusUI
-    public int GetRequirements(int index) => RequestCount == 0 ? 0 : _requests[index * 2 + 1];
-    public int GetProgressRequirements(int index) => RequestCount == 0 ? 0 : _currentRequests[index];
-
+    public int GetRequestID(int index) => RequestCount == 0 ? 0 : _requests[index * 2];
+    public int GetRequestCount(int index) => RequestCount == 0 ? 0 : _requests[index * 2 + 1];
+    public int GetProgressRequestCount(int index) => RequestCount == 0 ? 0 : _currentRequests[index];
+    public bool IsCompleteRequest(int index) => GetRequestCount(index) <= GetProgressRequestCount(index);
     public void GetReward()
     {
         for (int i = 0; i < RewardCount; i++)
@@ -142,10 +140,11 @@ public class QuestManager
     UI_QuestWindow _uI_QuestWindow;
     UI_QuestMark _uI_QuestMark;
     UI_QuestStatus _uI_QuestStatus;
-    Dictionary<int, Quest> _quests = new Dictionary<int, Quest>();
-    Dictionary<int, int> _preQuests = new Dictionary<int, int>();
+    UI_MiniMap _uI_MiniMap;
+    Dictionary<int, Quest> _quests;
+    Dictionary<int, int> _preQuests;
     Action _closeAction;
-    List<int> _proceedingQuestID = new List<int>();
+    List<int> _proceedingQuestID;
     bool _isOpenQuestWindow;
     bool _isOpenQuestStatus;
 
@@ -154,6 +153,10 @@ public class QuestManager
         _uI_QuestWindow = Managers.UI.ShowSceneUI<UI_QuestWindow>();
         _uI_QuestMark = Managers.UI.ShowSceneUI<UI_QuestMark>();
         _uI_QuestStatus = Managers.UI.ShowSceneUI<UI_QuestStatus>();
+        _uI_MiniMap = Managers.UI.ShowSceneUI<UI_MiniMap>();
+        _quests = new Dictionary<int, Quest>();
+        _preQuests = new Dictionary<int, int>();
+        _proceedingQuestID = new List<int>();
 
         foreach (int key in Managers.Data.QuestDic.Keys)
         {
@@ -166,7 +169,7 @@ public class QuestManager
         }
     }
 
-    public Define.QuestStatus GetQuestStatusAtQuestID(int questId)
+    Define.QuestStatus GetQuestStatusAtQuestID(int questId)
     {
         if (_quests.ContainsKey(questId)) return _quests[questId].Status;
         else return Define.QuestStatus.None;
@@ -206,6 +209,8 @@ public class QuestManager
             case Define.QuestStatus.Can_Start:
                 break;
             case Define.QuestStatus.In_Progress:
+                ShowQuestCurser();
+                UpdateQuestCurser(_quests[questID]);
                 _proceedingQuestID.Add(questID);
                 if (_isOpenQuestStatus)
                     UpdateQuestStatus(_quests[questID]);
@@ -216,13 +221,9 @@ public class QuestManager
                 _proceedingQuestID.Remove(questID);
                 HideQuestStatus();
                 if (_preQuests.ContainsKey(questID))
-                {
                     ChangeQuestStatus(_preQuests[questID], Define.QuestStatus.Can_Start);
-                }
                 else
-                {
                     Managers.InfoUI.ShowGameClearWindow();
-                }
                 break;
         }
     }
@@ -269,7 +270,8 @@ public class QuestManager
     public void OpenQuestWindow(Transform npc, Transform cameraTarget, int npcID, Action closeAction)
     {
         int questID = CanStartQuestIDAtNPCID(npcID);
-        ShowQuestWindow(questID);
+        _isOpenQuestWindow = true;
+        _uI_QuestWindow.ShowQuestWindow(questID);
         Managers.Input.UnlockMouse();
         Managers.Camera.OnEnableCinemachineViewNPC(npc, cameraTarget);
         _closeAction = closeAction;
@@ -291,36 +293,45 @@ public class QuestManager
         CloseQuestWindow();
     }
 
-    public void ShowQuestWindow(int questID)
-    {
-        _isOpenQuestWindow = true;
-        _uI_QuestWindow.ShowQuestWindow(questID);
-    }
-
-    public void ChangeQuestMark(int npcIndex, Define.QuestStatus questState)
+    void ChangeQuestMark(int npcIndex, Define.QuestStatus questState)
     {
         _uI_QuestMark.ChangeQuestMark(npcIndex, questState);
     }
 
-    public void UpdateQuestRequest(Quest quest)
+    void UpdateQuestRequest(Quest quest)
     {
         _uI_QuestStatus.UpdateQuestRequest(quest);
     }
 
-    public void UpdateQuestStatus(Quest quest)
+    void UpdateQuestStatus(Quest quest)
     {
         _uI_QuestStatus.UpdateQuestStatus(quest);
     }
 
-    public void ShowQuestStatus(Quest quest)
+    void ShowQuestStatus(Quest quest)
     {
         _isOpenQuestStatus = true;
         _uI_QuestStatus.ShowQuestStatus(quest);
     }
 
-    public void HideQuestStatus()
+    void HideQuestStatus()
     {
         _isOpenQuestStatus = false;
         _uI_QuestStatus.HideQuestStatus();
+    }
+
+    void UpdateQuestCurser(Quest quest)
+    {
+        _uI_MiniMap.BindQuest(quest);
+    }
+
+    void ShowQuestCurser()
+    {
+        _uI_MiniMap.ShowQuestCurser();
+    }
+
+    void HideQuestCurser()
+    {
+        _uI_MiniMap.HideQuestCurser();
     }
 }

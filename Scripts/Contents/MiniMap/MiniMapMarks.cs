@@ -40,15 +40,6 @@ public class MiniMapMarks : MonoBehaviour
         }
     }
 
-    public void SwitchMapTile(SpriteRenderer tile1, SpriteRenderer tile2, float t)
-    {
-        Color color = tile1.color;
-        color.a = t;
-        tile1.color = color;
-        color.a = 1 - t;
-        tile2.color = color;
-    }
-
     public void CheckIncludedMapTile(Vector3 position)
     {
         for (int i = 0; i < SwitchTileDatas.Length; i++)
@@ -73,6 +64,15 @@ public class MiniMapMarks : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void SwitchMapTile(SpriteRenderer tile1, SpriteRenderer tile2, float t)
+    {
+        Color color = tile1.color;
+        color.a = t;
+        tile1.color = color;
+        color.a = 1 - t;
+        tile2.color = color;
     }
 
     private void OnDrawGizmos()

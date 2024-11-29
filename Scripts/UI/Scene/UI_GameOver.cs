@@ -29,8 +29,6 @@ public class UI_GameOver : UI_Scene
         Text_Exit
     }
 
-    public Action RespawnAction;
-
     public override bool Init()
     {
         if (base.Init() == false)
@@ -77,7 +75,7 @@ public class UI_GameOver : UI_Scene
 
     void ClickRespawn(PointerEventData evt)
     {
-        RespawnAction.Invoke();
+        Managers.PlayerInfo.RespawnPlayer();
         Managers.Input.LockMouse();
         gameObject.SetActive(false);
     }

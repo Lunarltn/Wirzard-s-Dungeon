@@ -6,6 +6,7 @@ using UnityEngine.AI;
 public class SpawnRoom : BaseRoom
 {
     const string PATH = "Monster/";
+    const string PARENT = "@Monster";
 
     [SerializeField]
     int spawnCount;
@@ -14,13 +15,14 @@ public class SpawnRoom : BaseRoom
     [SerializeField]
     string monsterName;
 
-
+    Transform _parent;
     int _currentSpawnCount;
     float _spawnTimer;
     List<BaseController> _monstersController;
 
     private void Start()
     {
+        _parent = GameObject.Find(PARENT).transform;
         _monstersController = new List<BaseController>();
         var monsters = Physics.OverlapBox(roomPosition, (RoomSizeV3 / 2) + Vector3.up, Quaternion.identity, Managers.Layer.MonsterLayerMask);
         for (int i = 0; i < monsters.Length; i++)
@@ -58,6 +60,7 @@ public class SpawnRoom : BaseRoom
             if (NavMesh.SamplePosition(randPos, out NavMeshHit hit, 100, NavMesh.AllAreas))
             {
                 var monster = Managers.Resource.Instantiate(PATH + monsterName);
+                monster.transform.parent = _parent;
                 var controller = monster.GetComponent<MonsterController>();
                 controller.InitSpawnSetting(hit.position);
                 _monstersController.Add(controller);

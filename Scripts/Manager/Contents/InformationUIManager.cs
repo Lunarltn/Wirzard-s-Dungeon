@@ -19,28 +19,30 @@ public class InformationUIManager
         _highlight = Managers.UI.ShowSceneUI<UI_Highlight>();
         _gameClear = Managers.UI.ShowSceneUI<UI_GameClear>();
         _gameOver = Managers.UI.ShowSceneUI<UI_GameOver>();
-        _gameOver.RespawnAction = () => Managers.PlayerInfo.RespawnPlayer();
+        Managers.UI.ShowSceneUI<UI_PlayerStat>();
+        Managers.UI.ShowSceneUI<UI_HotKeySlotBar>();
+        Managers.Inventory.UI_InventoryAssistent = Managers.UI.ShowSceneUI<UI_InventoryAssistent>();
     }
 
     public void ShowDamageEffect(Vector3 position, Damage damage)
     {
-        _damageEffect.ShowDamageText(position, damage);
+        _damageEffect?.ShowDamageText(position, damage);
     }
 
     public void ShowAlarm(string text)
     {
-        _alarm.ShowAlarm(text);
+        _alarm?.ShowAlarm(text);
     }
 
     public void ShowItemAlarm(string text)
     {
-        _alarm.ShowItemAlarm(text);
+        _alarm?.ShowItemAlarm(text);
     }
 
     public void ShowInterectionMessege(string name, string contents, Action action)
     {
         if (contents == string.Empty) return;
-        _alarm.ShowInterection(name, contents);
+        _alarm?.ShowInterection(name, contents);
         if (Managers.Input.IsInterect)
         {
             action?.Invoke();
@@ -48,22 +50,22 @@ public class InformationUIManager
     }
     public void ShowGameOverWindow()
     {
-        _gameOver.FadeIn();
+        _gameOver?.FadeIn();
     }
 
     public void ShowGameClearWindow()
     {
-        _gameClear.FadeIn();
+        _gameClear?.FadeIn();
     }
 
     public void HideInterectionMessege()
     {
-        _alarm.HideInterection();
+        _alarm?.HideInterection();
     }
 
     public void ShowHighlight(Transform target, float high)
     {
-        _highlight.ShowHighlight(target, high);
+        _highlight?.ShowHighlight(target, high);
     }
 
 }

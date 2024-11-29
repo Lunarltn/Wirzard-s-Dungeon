@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 public class PlayerController : BaseController, IDamageable, IKnockbackable
 {
@@ -90,7 +90,7 @@ public class PlayerController : BaseController, IDamageable, IKnockbackable
 
         stateMachine.Init(WalkState);
 
-        Managers.Inventory.SetEquipment(Define.EquipCategory.Weapon, new Item(1001, 1));
+        //Managers.Inventory.SetEquipment(Define.EquipCategory.Weapon, new Item(1001, 1));
     }
 
     void Update()
@@ -131,7 +131,6 @@ public class PlayerController : BaseController, IDamageable, IKnockbackable
 
     public void CommandMoveToDestinationState(Vector3 destination, Vector3 endDir)
     {
-        destination = new Vector3(destination.x, transform.position.y, destination.z);
         SpecialAction = () =>
         {
             if (MoveToDestination(destination, 0.3f))
@@ -199,14 +198,17 @@ public class PlayerController : BaseController, IDamageable, IKnockbackable
         }
     }
 
-    public bool MoveToDestination(Vector3 destination, float distance)
+    public async UniTask MoveToDest()
     {
-        if (Vector3.Distance(transform.position, destination) > distance)
+        await UniTask.Yield();
+    }
+
+    public bool MoveToDestination(Vector3 destination, float stopDistance)
+    {
+        if (Vector3.Distance(transform.position, destination) > stopDistance)
         {
             //감속
-            float runSpeed = Vector3.Distance(transform.position, destination) - distance;
-            if (runSpeed < 1)
-                _runSpeed = runSpeed + 0.2f;
+            _runSpeed = Mathf.Max(Vector3.Distance(transform.position, destination), 1);
             //이동
             Vector3 dir = (destination - transform.position).normalized;
             dir = new Vector3(dir.x, 0, dir.z);
@@ -399,48 +401,4 @@ public class PlayerController : BaseController, IDamageable, IKnockbackable
         rb.angularVelocity = Vector3.zero;
         _isKnockback = false;
     }
-
-
-    //IK
-    protected const string IKLEFTFOOT = "IKLeftFootWeight";
-    protected const string IKRIGHTFOOT = "IKRightFootWeight";
-    /*
-    [Range(0, 1), SerializeField]
-    float distanceToGround;
-    const int _groundLayer = 1 << 6;
-    private void OnAnimatorIK(int layerIndex)
-    {
-        if (Anim.GetCurrentAnimatorStateInfo(0).IsName("Move Blend"))
-        {
-            Anim.SetIKPositionWeight(AvatarIKGoal.LeftFoot, Anim.GetFloat(IKLEFTFOOT));
-            Anim.SetIKRotationWeight(AvatarIKGoal.LeftFoot, Anim.GetFloat(IKLEFTFOOT));
-            Anim.SetIKPositionWeight(AvatarIKGoal.RightFoot, Anim.GetFloat(IKRIGHTFOOT));
-            Anim.SetIKRotationWeight(AvatarIKGoal.RightFoot, Anim.GetFloat(IKRIGHTFOOT));
-
-            Ray ray = new Ray(Anim.GetIKPosition(AvatarIKGoal.LeftFoot) + Vector3.up, Vector3.down);
-            if (Physics.Raycast(ray, out RaycastHit hit, distanceToGround + 1f, _groundLayer))
-            {
-                if (hit.transform.tag == "Ground")
-                {
-                    Vector3 footPosition = hit.point;
-                    footPosition.y += distanceToGround;
-                    Anim.SetIKPosition(AvatarIKGoal.LeftFoot, footPosition);
-                    Anim.SetIKRotation(AvatarIKGoal.LeftFoot, Quaternion.LookRotation(transform.forward, hit.normal));
-                }
-            }
-
-            ray = new Ray(Anim.GetIKPosition(AvatarIKGoal.RightFoot) + Vector3.up, Vector3.down);
-            if (Physics.Raycast(ray, out hit, distanceToGround + 1f, _groundLayer))
-            {
-                if (hit.transform.tag == "Ground")
-                {
-                    Vector3 footPosition = hit.point;
-                    footPosition.y += distanceToGround;
-                    Anim.SetIKPosition(AvatarIKGoal.RightFoot, footPosition);
-                    Anim.SetIKRotation(AvatarIKGoal.RightFoot, Quaternion.LookRotation(transform.forward, hit.normal));
-                }
-            }
-        }
-
-    }*/
 }

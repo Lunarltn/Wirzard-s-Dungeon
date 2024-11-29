@@ -7,7 +7,6 @@ public class UIManager
 {
     int _popupOrder = 10;
 
-    Stack<UI_OneOffPopup> _popupStack = new Stack<UI_OneOffPopup>();
     Dictionary<string, UI_Popup> _popupDic = new Dictionary<string, UI_Popup>();
 
     public GameObject Root
@@ -119,39 +118,9 @@ public class UIManager
         _popupOrder++;
     }
 
-    public T ShowOneOffPopupUI<T>(string name = null) where T : UI_OneOffPopup
-    {
-        if (string.IsNullOrEmpty(name))
-            name = typeof(T).Name;
-
-        GameObject go = Managers.Resource.Instantiate($"UI/OneOffPopup/{name}");
-        T popup = go.GetOrAddComponent<T>();
-        _popupStack.Push(popup);
-
-        go.transform.SetParent(Root.transform);
-
-        return popup;
-    }
-
-    public void CloseOneOffPopupUI()
-    {
-        if (_popupStack.Count == 0)
-            return;
-        UI_OneOffPopup popup = _popupStack.Pop();
-        Managers.Resource.Destroy(popup.gameObject);
-        popup = null;
-        _popupOrder--;
-    }
-
-    public void CloseAllOneOffPopupUI()
-    {
-        while (_popupStack.Count > 0)
-            CloseOneOffPopupUI();
-    }
-
     public void Clear()
     {
         CloseAllPopupUI();
-        CloseAllOneOffPopupUI();
+        _popupDic.Clear();
     }
 }

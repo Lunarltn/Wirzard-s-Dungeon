@@ -12,7 +12,6 @@ public class AltarScaffolding : MonoBehaviour, IInteraction
     [SerializeField]
     LineRenderer _laser;
     [SerializeField]
-    GameObject[] _circles = new GameObject[2];
     const float LASER_MAX_DISTANCE = 15;
     int _detectionObjectMask;
     bool _isUsing;
@@ -24,8 +23,6 @@ public class AltarScaffolding : MonoBehaviour, IInteraction
     {
         _detectionObjectMask = Managers.Layer.DetectionLayerMask;
         _laser.gameObject.SetActive(false);
-        _circles[0].SetActive(false);
-        _circles[1].SetActive(false);
     }
 
     async UniTask WaitComplete()
@@ -61,8 +58,6 @@ public class AltarScaffolding : MonoBehaviour, IInteraction
         if (_isUsing == false)
         {
             _isUsing = true;
-            _circles[0].SetActive(true);
-            _circles[1].SetActive(true);
             Managers.PlayerInfo.Controller.CommandMoveToDestinationState(transform.position, -transform.forward);
             Managers.Camera.OnEnableCinemachineViewTopAngle(_room.CameraFollow, new Vector3(90, 90, 0));
             ShotRay();
@@ -73,8 +68,6 @@ public class AltarScaffolding : MonoBehaviour, IInteraction
             if (_isCompleteDelay == false)
                 return;
             _isUsing = false;
-            _circles[0].SetActive(false);
-            _circles[1].SetActive(false);
             Managers.PlayerInfo.Controller.ResetState();
             Managers.Camera.OnDisableCinemachineViewTopAngle();
             if (_detectionObject != null)

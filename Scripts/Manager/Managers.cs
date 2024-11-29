@@ -1,6 +1,10 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 //싱글톤 관리
 public class Managers : MonoBehaviour
 {
@@ -55,48 +59,61 @@ public class Managers : MonoBehaviour
     {
         if (s_instance == null)
         {
-            GameObject go = GameObject.Find("@Managers");
-            if (go == null)
-            {
-                go = new GameObject { name = "@Managers" };
-                go.AddComponent<Managers>();
-            }
+            GameObject go = new GameObject { name = "@Managers" };
+            go.AddComponent<Managers>();
             DontDestroyOnLoad(go);
             s_instance = go.GetComponent<Managers>();
 
-            //Init
-            s_instance._layer.Init();
+            //core
             s_instance._data.Init();
             s_instance._pool.Init();
+            //content
+            s_instance._layer.Init();
+            s_instance._input.Init();
+            SceneManager.sceneLoaded += OnLevelLoaded;
+        }
+    }
+
+    static void OnLevelLoaded(Scene scene, LoadSceneMode mode)
+    {
+
+        if (scene.name != Scene.GetSceneName(Define.Scene.Loading))
+        {
+            var fade = UI.ShowSceneUI<UI_FadeEffect>();
+            fade.FadeEffect(UI_FadeEffect.Options.FadeIn, 3f).Forget();
+        }
+
+        if (scene.name == Scene.GetSceneName(Define.Scene.Game))
+        {
             s_instance._playerInfo.Init();
             s_instance._camera.Init();
-            s_instance._input.Init();
             s_instance._inventory.Init();
             s_instance._hotKey.Init();
-            s_instance._infoUI.Init();
             s_instance._npc.Init();
             s_instance._quest.Init();
+            s_instance._infoUI.Init();
         }
     }
 
     void Update()
     {
-        Input.HandleInput();
-        PlayerInfo.Update();
+        if (Scene.CurrentScene.SceneType == Define.Scene.Game)
+        {
+            Input.HandleInput();
+            Camera.Update();
+        }
         _test.Update();
-    }
-
-    private void OnDisable()
-    {
-        Camera.OnDisable();
     }
 
     public static void Clear()
     {
-        HotKey.Clear();
-        UI.Clear();
         Pool.Clear();
         Sound.Clear();
         Scene.Clear();
+        NPC.Clear();
+        HotKey.Clear();
+        UI.Clear();
+        Camera.Clear();
+        Input.Clear();
     }
 }

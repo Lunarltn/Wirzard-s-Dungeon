@@ -36,4 +36,8 @@ public class NPCManager
         _nPCRecoverTime.ShowRecoverTime(npcIndex, flowTime);
     }
 
+    public void Clear()
+    {
+        _npcs.Clear();
+    }
 }

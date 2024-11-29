@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using UnityEditor.Rendering.LookDev;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -64,14 +63,14 @@ public class UI_QuestStatus : UI_Scene
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < quest.RequestCount; i++)
             {
-                if (quest.GetProgressRequirements(i) >= quest.GetRequirements(i))
+                if (quest.GetProgressRequestCount(i) >= quest.GetRequestCount(i))
                     stringBuilder.Append("<#FFFF00>");
                 stringBuilder.Append(quest.GetRequestName(i));
                 stringBuilder.Append(" ");
-                stringBuilder.Append(quest.GetProgressRequirements(i));
+                stringBuilder.Append(quest.GetProgressRequestCount(i));
                 stringBuilder.Append("/");
-                stringBuilder.Append(quest.GetRequirements(i));
-                if (quest.GetProgressRequirements(i) >= quest.GetRequirements(i))
+                stringBuilder.Append(quest.GetRequestCount(i));
+                if (quest.GetProgressRequestCount(i) >= quest.GetRequestCount(i))
                     stringBuilder.Append("</color>");
                 if (i != quest.RequestCount - 1)
                     stringBuilder.AppendLine();

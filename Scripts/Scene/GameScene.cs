@@ -1,12 +1,14 @@
+using System;
+using UnityEngine;
+
 public class GameScene : BaseScene
 {
     protected override void Init()
     {
         base.Init();
         SceneType = Define.Scene.Game;
-        Managers.UI.ShowSceneUI<UI_PlayerStat>();
-        Managers.UI.ShowSceneUI<UI_HotKeySlotBar>();
-        //Managers.HotKey.SetSkill(0, Managers.Data.SkillDic[(int)Define.SkillName.Fireball]);
+        Managers.Input.PlayMove();
+        Managers.Input.LockMouse();
     }
 
     private void Update()
@@ -16,6 +18,5 @@ public class GameScene : BaseScene
 
     public override void Clear()
     {
-
     }
 }

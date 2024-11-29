@@ -26,6 +26,7 @@ public class CameraManager
     const float MAX_AIM_DISTANCE = 50f;
     const float MAX_CAMERA_X_SENSITIVITY = 500f;
     const float MAX_CAMERA_Y_SENSITIVITY = 4f;
+    const float MINIMAP_CAMERA_HEIGHT = 15;
 
     int _initCullingMask;
     float _maxAimDistance = 50f;
@@ -104,15 +105,22 @@ public class CameraManager
     CinemachineVirtualCamera _cinemachine_VirtualCamera_ViewNPC;
     CinemachineVirtualCamera _cinemachine_VirtualCamera_ViewTopAngle;
     CinemachineBasicMultiChannelPerlin[] _rigMCs = new CinemachineBasicMultiChannelPerlin[3];
+    Transform _miniMapCamera;
 
     public void Init()
     {
         InitCinemachineFreeLook();
         InitCinemachineViewNPC();
         InitCinemachineViewTopAngle();
+        InitMiniMapCamera();
 
         _initCullingMask = MainCamera.cullingMask;
         CameraSensitivity = 50;
+    }
+
+    public void Update()
+    {
+        UpdateMiniMapCamera();
     }
 
     void InitCinemachineFreeLook()
@@ -141,6 +149,22 @@ public class CameraManager
         _cinemachine_VirtualCamera_ViewTopAngle = cinemachine_ViewTopAngle.GetComponent<CinemachineVirtualCamera>();
         cinemachine_ViewTopAngle.SetActive(false);
     }
+
+    void InitMiniMapCamera()
+    {
+        _miniMapCamera = Managers.Resource.Instantiate("Camera/MiniMapCamera").transform;
+        _miniMapCamera.rotation = Quaternion.Euler(90, 0, 0);
+    }
+
+    void UpdateMiniMapCamera()
+    {
+        if (Managers.PlayerInfo.Player == null)
+            return;
+        var pos = Managers.PlayerInfo.Player.transform.position;
+        _miniMapCamera.position = new Vector3(pos.x, MINIMAP_CAMERA_HEIGHT, pos.z);
+
+    }
+
     public void OnEnableCinemachineViewNPC(Transform follow, Transform lookAt)
     {
         _cinemachine_VirtualCamera_ViewNPC.Follow = follow;
@@ -268,6 +292,13 @@ public class CameraManager
     public void DisposeToken(CancellationTokenSource cancelTokenSource)
     {
         cancelTokenSource?.Dispose();
+    }
+
+    public void Clear()
+    {
+        OnDisable();
+        _zoomCancleTokenSource = null;
+        _shakeCancleTokenSource = null;
     }
 
     public void OnDisable()

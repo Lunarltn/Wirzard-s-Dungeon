@@ -87,9 +87,6 @@ public abstract class BaseController : MonoBehaviour
             return true;
     }
 
-    virtual public bool MoveToDestination(Vector3 destination, float stopDistance = 0.5f, float speed = 1)
-    { return true; }
-
     virtual public void Attack() { }
 
     async UniTask CancleAttackTargetTimer(float time)
@@ -144,6 +141,7 @@ public abstract class BaseController : MonoBehaviour
 
     private void OnDestroy()
     {
+        _rotateTweener = null;
         Cancel();
         Dispose();
     }

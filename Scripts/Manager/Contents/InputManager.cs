@@ -40,13 +40,11 @@ public class InputManager
     public bool IsMouseLeftClick() => MouseLeftClick;
     public void Init()
     {
-        PlayMove();
-        LockMouse();
         _isOpenPopup = new Dictionary<KeyCode, bool>();
         _hotKeys = new Dictionary<KeyCode, Action<int>>();
-        _corsor = new Texture2D[2];
-        _corsor[0] = Managers.Resource.Load<Texture2D>("Cursor/Cursor_Basic");
-        _corsor[1] = Managers.Resource.Load<Texture2D>("Cursor/Cursor_Hand");
+        _corsor = new Texture2D[Enum.GetValues(typeof(Define.Cursor)).Length];
+        _corsor[(int)Define.Cursor.Basic] = Managers.Resource.Load<Texture2D>("Sprite/Cursor/Cursor_Basic");
+        _corsor[(int)Define.Cursor.Select] = Managers.Resource.Load<Texture2D>("Sprite/Cursor/Cursor_Hand");
     }
 
     void RegisterPopupKey<T>(KeyCode keyCode) where T : UI_Popup
@@ -54,26 +52,32 @@ public class InputManager
         if (_isOpenPopup.ContainsKey(keyCode) == false)
             _isOpenPopup.Add(keyCode, false);
 
-        if (_isOpenPopup.ContainsKey(KeyCode.Escape) && _isOpenPopup[KeyCode.Escape] && keyCode != KeyCode.Escape)
+        if (_isOpenPopup.ContainsKey(KeyCode.Escape)
+            && _isOpenPopup[KeyCode.Escape]
+            && keyCode != KeyCode.Escape)
             return;
 
-        if (Input.GetKeyUp(keyCode) && _isOpenPopup[keyCode] == false)
+        if (Input.GetKeyUp(keyCode))
         {
-            Managers.UI.ShowPopupUI<T>();
-            OpenPopupKeyCode(keyCode);
-        }
-        else if (Input.GetKeyUp(keyCode) && _isOpenPopup[keyCode] == true)
-        {
-            Managers.UI.ClosePopupUI<T>();
-            Managers.Inventory.UI_InventoryAssistent.CloseItemInfo();
-            Managers.Inventory.UI_InventoryAssistent.DisabledImage();
-            ClosePopupKeyCode(keyCode);
+            if (_isOpenPopup[keyCode] == false)
+            {
+                Managers.UI.ShowPopupUI<T>();
+                OpenPopupKeyCode(keyCode);
+            }
+            else if (_isOpenPopup[keyCode] == true)
+            {
+                Managers.UI.ClosePopupUI<T>();
+                Managers.Inventory.UI_InventoryAssistent.CloseItemInfo();
+                Managers.Inventory.UI_InventoryAssistent.DisabledImage();
+                ClosePopupKeyCode(keyCode);
+            }
         }
     }
     void OpenPopupKeyCode(KeyCode keyCode)
     {
         if (_isOpenPopup.ContainsKey(keyCode) == false)
             return;
+
         _isOpenPopup[keyCode] = true;
         UnlockMouse();
     }
@@ -82,8 +86,6 @@ public class InputManager
     {
         if (_isOpenPopup.ContainsKey(keyCode) == false)
             return;
-        if (keyCode == KeyCode.Escape)
-            Time.timeScale = 1;
 
         _isOpenPopup[keyCode] = false;
         LockMouse();
@@ -115,6 +117,7 @@ public class InputManager
     {
         if (Managers.PlayerInfo != null && Managers.PlayerInfo.IsDead)
             return;
+
         RegisterPopupKey<UI_Inventory>(KeyCode.I);
         RegisterPopupKey<UI_Equipment>(KeyCode.E);
         RegisterPopupKey<UI_Skill>(KeyCode.K);
@@ -174,11 +177,15 @@ public class InputManager
         Managers.Camera.CameraLock();
         isScreenLock = false;
     }
+    Define.Cursor _currentCorsor = Define.Cursor.None;
 
     public void ChangeMouseCurser(Define.Cursor cursor)
     {
-        if (_corsor.Length > (int)cursor)
+        if (_corsor.Length > (int)cursor && _currentCorsor != cursor)
+        {
+            _currentCorsor = cursor;
             Cursor.SetCursor(_corsor[(int)cursor], new Vector2(14, 0), CursorMode.Auto);
+        }
     }
 
     public void StopMove()
@@ -189,5 +196,11 @@ public class InputManager
     public void PlayMove()
     {
         _isMove = true;
+    }
+
+    public void Clear()
+    {
+        _isOpenPopup?.Clear();
+        _hotKeys?.Clear();
     }
 }

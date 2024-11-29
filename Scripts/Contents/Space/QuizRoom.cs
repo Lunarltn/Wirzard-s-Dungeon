@@ -172,8 +172,8 @@ public class QuizRoom : BaseRoom
             .AppendInterval(0.5f)
             .Append(CameraFollow.DOLocalMoveZ(bridgePosition.z, 1f))
             .AppendInterval(1)
-            .Append(_bridges[0].DOLocalMoveY(-3.7f, 1))
-            .Join(_bridges[1].DOLocalMoveY(-3.7f, 1))
+            .Append(_bridges[0].DOLocalMoveY(-4.5f, 1))
+            .Join(_bridges[1].DOLocalMoveY(-4.5f, 1))
             .AppendInterval(1)
             .Append(CameraFollow.DOLocalMoveZ(_cameraFollowInitLocalPostion.z, 1f));
         _bridges[0].GetChild(0).GetComponent<SpriteRenderer>().sortingOrder = 0;

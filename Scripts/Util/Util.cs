@@ -83,10 +83,6 @@ public class Util
     }
 
     //벡터 각도 변환
-    public static float Vector2ToAngle(Vector2 direction)
-    {
-        return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-    }
     public static float Vector3ToAngle(Vector3 direction)
     {
         return Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;

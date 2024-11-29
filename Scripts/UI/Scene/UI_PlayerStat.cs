@@ -27,13 +27,12 @@ public class UI_PlayerStat : UI_Scene
             return false;
 
         BindImage(typeof(Images));
-
         var _playerStat = Managers.PlayerInfo.Controller.Stat;
 
-        _playerStat.UpdateHPStat += UpdateHPStat;
-        _playerStat.UpdateMPStat += UpdateMPStat;
-        _playerStat.UpdateCurrentHPStat += UpdateCurrentHPStat;
-        _playerStat.UpdateCurrentMPStat += UpdateCurrentMPStat;
+        _playerStat.UpdateHPStat = UpdateHPStat;
+        _playerStat.UpdateMPStat = UpdateMPStat;
+        _playerStat.UpdateCurrentHPStat = UpdateCurrentHPStat;
+        _playerStat.UpdateCurrentMPStat = UpdateCurrentMPStat;
 
         return true;
     }

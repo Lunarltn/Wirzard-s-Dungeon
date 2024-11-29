@@ -8,12 +8,15 @@ public class Define
     }
     public enum Cursor
     {
+        None,
         Basic,
         Select
     }
     public enum Scene
     {
         Unknown,
+        Loading,
+        Logo,
         Lobby,
         Game
     }

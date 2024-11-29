@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using static UnityEditor.Progress;
 
 public class Item
 {
@@ -69,7 +68,6 @@ public class InventoryManager
 
     public void Init()
     {
-        UI_InventoryAssistent = Managers.UI.ShowSceneUI<UI_InventoryAssistent>();
         _inventory = new Dictionary<Define.MainCategory, Item[]>();
         _equipment = new Dictionary<Define.EquipCategory, Item>();
 

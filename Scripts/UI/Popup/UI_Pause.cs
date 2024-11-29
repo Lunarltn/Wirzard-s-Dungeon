@@ -59,6 +59,7 @@ public class UI_Pause : UI_Popup
     Color32 _optionsPanelColor;
     readonly Color32 _optionsButtonColor = new Color32(29, 29, 29, 255);
     int _currentOptionsMenuIndex;
+    CancellationTokenSource[] _optionCancelSources;
 
     #region options
     bool _isChangedOptions;
@@ -225,9 +226,9 @@ public class UI_Pause : UI_Popup
         BindEvent(GetTMP((int)Texts.Text_Options).gameObject, EnterOptionsButton, Define.UI_Event.Enter);
         BindEvent(GetTMP((int)Texts.Text_Exit).gameObject, EnterExitButton, Define.UI_Event.Enter);
 
-        BindEvent(GetTMP((int)Texts.Text_Resume).gameObject, ExitButton, Define.UI_Event.Exit);
-        BindEvent(GetTMP((int)Texts.Text_Options).gameObject, ExitButton, Define.UI_Event.Exit);
-        BindEvent(GetTMP((int)Texts.Text_Exit).gameObject, ExitButton, Define.UI_Event.Exit);
+        BindEvent(GetTMP((int)Texts.Text_Resume).gameObject, ExitResumeButton, Define.UI_Event.Exit);
+        BindEvent(GetTMP((int)Texts.Text_Options).gameObject, ExitOptionsButton, Define.UI_Event.Exit);
+        BindEvent(GetTMP((int)Texts.Text_Exit).gameObject, ExitExitButton, Define.UI_Event.Exit);
 
         BindEvent(GetTMP((int)Texts.Text_Resume).gameObject, ClickResumeButton, Define.UI_Event.Click);
         BindEvent(GetTMP((int)Texts.Text_Options).gameObject, ClickOptionsButton, Define.UI_Event.Click);
@@ -263,7 +264,7 @@ public class UI_Pause : UI_Popup
         InitAimingLineDropdown();
         InitAimingLineAlphaSlider();
 
-
+        _optionCancelSources = new CancellationTokenSource[3];
 
         return true;
     }
@@ -314,6 +315,7 @@ public class UI_Pause : UI_Popup
 
     void OnDisable()
     {
+        Time.timeScale = 1;
         _currentSequence?.Kill();
     }
 
@@ -482,19 +484,33 @@ public class UI_Pause : UI_Popup
     #region PauseMenu
     void EnterResumeButton(PointerEventData evt)
     {
-        AnimationSizeUpText(GetTMP((int)Texts.Text_Resume));
+        AnimationFontSize(GetTMP((int)Texts.Text_Resume), 60, 0.2f, 0).Forget();
     }
 
     void EnterOptionsButton(PointerEventData evt)
     {
-        AnimationSizeUpText(GetTMP((int)Texts.Text_Options));
+        AnimationFontSize(GetTMP((int)Texts.Text_Options), 60, 0.2f, 1).Forget();
     }
 
     void EnterExitButton(PointerEventData evt)
     {
-        AnimationSizeUpText(GetTMP((int)Texts.Text_Exit));
+        AnimationFontSize(GetTMP((int)Texts.Text_Exit), 60, 0.2f, 2).Forget();
     }
 
+    void ExitResumeButton(PointerEventData evt)
+    {
+        AnimationFontSize(GetTMP((int)Texts.Text_Resume), 50, 0.2f, 0).Forget();
+    }
+
+    void ExitOptionsButton(PointerEventData evt)
+    {
+        AnimationFontSize(GetTMP((int)Texts.Text_Options), 50, 0.2f, 1).Forget();
+    }
+
+    void ExitExitButton(PointerEventData evt)
+    {
+        AnimationFontSize(GetTMP((int)Texts.Text_Exit), 50, 0.2f, 2).Forget();
+    }
     void ClickResumeButton(PointerEventData evt)
     {
         ClosePopupUI<UI_Pause>(KeyCode.Escape);
@@ -511,26 +527,24 @@ public class UI_Pause : UI_Popup
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.ExitPlaymode();
 #else
-        Application.Quit();
+                Application.Quit();
 #endif
     }
-
-    void AnimationSizeUpText(TextMeshProUGUI tmp)
+    async UniTask AnimationFontSize(TextMeshProUGUI tmp, float targetFontSize, float speed, int idx)
     {
-        _currentSequence?.Kill();
+        _optionCancelSources[idx]?.Cancel();
+        _optionCancelSources[idx] = new CancellationTokenSource();
 
-        _currentSequence = DOTween.Sequence()
-        .OnStart(() =>
+        float time = 0;
+        float size = targetFontSize - tmp.fontSize;
+        float currentSize = tmp.fontSize;
+
+        while (time < speed)
         {
-            tmp.fontSize = 50;
-        })
-        .SetAutoKill(false)
-        .SetUpdate(true)
-        .Append(DOTween.To(() => tmp.fontSize, x => tmp.fontSize = x, 60, 0.5f))
-        .OnKill(() =>
-        {
-            tmp.fontSize = 50;
-        });
+            time += Time.unscaledDeltaTime;
+            tmp.fontSize = currentSize + (size * (time / speed));
+            await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken: _optionCancelSources[idx].Token);
+        }
     }
     #endregion
 

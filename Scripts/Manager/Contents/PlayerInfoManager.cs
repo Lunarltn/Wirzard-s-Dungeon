@@ -15,19 +15,24 @@ public partial class PlayerInfoManager
             return _player;
         }
     }
-
-    public PlayerController Controller { get; private set; }
+    PlayerController _controller;
+    public PlayerController Controller
+    {
+        get
+        {
+            if (_controller == null)
+                _controller = Player?.GetComponent<PlayerController>();
+            return _controller;
+        }
+    }
     public SkillInfo Skill { get { return _skill; } }
     public bool IsDead => Controller.IsDead;
     SkillInfo _skill = new SkillInfo();
     Transform _respawnPoint;
-    MiniMap _miniMap = new MiniMap();
 
     public void Init()
     {
-        Controller = Player?.GetComponent<PlayerController>();
         _skill.Init();
-        _miniMap.Init();
     }
 
     public Transform GetRespawnPoint() => _respawnPoint;
@@ -35,11 +40,6 @@ public partial class PlayerInfoManager
     public void SetRespawnPoint(Transform point)
     {
         _respawnPoint = point;
-    }
-
-    public void Update()
-    {
-        _miniMap.Update();
     }
 
     public void DiePlayer()
@@ -127,32 +127,6 @@ public partial class PlayerInfoManager
             Level[skillName]--;
             CurrentSkillPoint++;
             UpdateSkillLevel?.Invoke(skillName, Level[skillName]);
-        }
-    }
-}
-
-public partial class PlayerInfoManager
-{
-    public class MiniMap
-    {
-        const float CAMERA_HEIGHT = 15;
-        Transform _miniMapCamera;
-
-        public void Init()
-        {
-            _miniMapCamera = GameObject.Find("MiniMapCamera").transform;
-            if (_miniMapCamera == null)
-                _miniMapCamera = Managers.Resource.Instantiate("Camera/MiniMapCamera").transform;
-
-            _miniMapCamera.rotation = Quaternion.Euler(90, 0, 0);
-        }
-
-        public void Update()
-        {
-            if (Managers.PlayerInfo.Player == null)
-                return;
-            var pos = Managers.PlayerInfo.Player.transform.position;
-            _miniMapCamera.position = new Vector3(pos.x, CAMERA_HEIGHT, pos.z);
         }
     }
 }

@@ -9,7 +9,10 @@ public abstract class BaseScene : MonoBehaviour
     {
         Init();
     }
-
+    private void OnDestroy()
+    {
+        Clear();
+    }
     protected virtual void Init()
     {
         Object obj = GameObject.FindObjectOfType(typeof(EventSystem));

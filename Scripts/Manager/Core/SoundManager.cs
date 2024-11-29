@@ -96,6 +96,7 @@ public class SoundManager
     {
         foreach (AudioSource audioSource in _audioSources)
         {
+            if (audioSource == null) return;
             audioSource.clip = null;
             audioSource.Stop();
         }
