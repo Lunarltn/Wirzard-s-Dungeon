@@ -16,7 +16,7 @@ public class Quest
 
     Define.QuestStatus _status;
     Action<int, Define.QuestStatus> _changeStatus;
-    Action<Quest> _updateStatus;
+    Action<Quest> _updateStatusUI;
     int _id;
     int[] _requests;
     int[] _rewards;
@@ -28,7 +28,7 @@ public class Quest
         set { _status = value; }
     }
 
-    public Quest(int id, Define.QuestStatus status, Action<int, Define.QuestStatus> changeStatus, Action<Quest> updateStatus)
+    public Quest(int id, Define.QuestStatus status, Action<int, Define.QuestStatus> changeStatus, Action<Quest> updateStatusUI)
     {
         _id = id;
         _status = status;
@@ -36,7 +36,7 @@ public class Quest
         _rewards = Util.SplitItemString(Managers.Data.QuestDic[id].rewards);
         _currentRequests = new int[MAX_ARRAY];
         _changeStatus = changeStatus;
-        _updateStatus = updateStatus;
+        _updateStatusUI = updateStatusUI;
         RequestItems = new Item[RequestCount];
         for (int i = 0; i < RequestCount; i++)
             RequestItems[i] = new Item(_requests[i * 2], _requests[i * 2 + 1]);
@@ -105,7 +105,7 @@ public class Quest
     {
         if (RequestCount == 0) return;
         _currentRequests[index] += count;
-        _updateStatus?.Invoke(this);
+        _updateStatusUI?.Invoke(this);
         int completeCount = 0;
         for (int i = 0; i < RequestCount; i++)
         {
@@ -160,7 +160,7 @@ public class QuestManager
 
         foreach (int key in Managers.Data.QuestDic.Keys)
         {
-            _quests.Add(key, new Quest(key, Define.QuestStatus.None, ChangeQuestStatus, UpdateQuestRequest));
+            _quests.Add(key, new Quest(key, Define.QuestStatus.None, ChangeQuestStatus, UpdateQuestRequestUI));
 
             if (Managers.Data.QuestDic[key].preQuest != 0)
                 _preQuests.Add(Managers.Data.QuestDic[key].preQuest, key);
@@ -202,24 +202,24 @@ public class QuestManager
         if (_quests.ContainsKey(questID) == false) return;
 
         _quests[questID].Status = questStatus;
-        ChangeQuestMark(_quests[questID].NPC, questStatus);
+        ChangeQuestMarkUI(_quests[questID].NPC, questStatus);
 
         switch (questStatus)
         {
             case Define.QuestStatus.Can_Start:
                 break;
             case Define.QuestStatus.In_Progress:
-                ShowQuestCurser();
-                UpdateQuestCurser(_quests[questID]);
+                ShowQuestCurserUI();
+                UpdateQuestCurserUI(_quests[questID]);
                 _proceedingQuestID.Add(questID);
                 if (_isOpenQuestStatus)
-                    UpdateQuestStatus(_quests[questID]);
+                    UpdateQuestStatusUI(_quests[questID]);
                 else
-                    ShowQuestStatus(_quests[questID]);
+                    ShowQuestStatusUI(_quests[questID]);
                 break;
             case Define.QuestStatus.Finished:
                 _proceedingQuestID.Remove(questID);
-                HideQuestStatus();
+                HideQuestStatusUI();
                 if (_preQuests.ContainsKey(questID))
                     ChangeQuestStatus(_preQuests[questID], Define.QuestStatus.Can_Start);
                 else
@@ -293,44 +293,44 @@ public class QuestManager
         CloseQuestWindow();
     }
 
-    void ChangeQuestMark(int npcIndex, Define.QuestStatus questState)
+    void ChangeQuestMarkUI(int npcIndex, Define.QuestStatus questState)
     {
         _uI_QuestMark.ChangeQuestMark(npcIndex, questState);
     }
 
-    void UpdateQuestRequest(Quest quest)
+    void UpdateQuestRequestUI(Quest quest)
     {
         _uI_QuestStatus.UpdateQuestRequest(quest);
     }
 
-    void UpdateQuestStatus(Quest quest)
+    void UpdateQuestStatusUI(Quest quest)
     {
         _uI_QuestStatus.UpdateQuestStatus(quest);
     }
 
-    void ShowQuestStatus(Quest quest)
+    void ShowQuestStatusUI(Quest quest)
     {
         _isOpenQuestStatus = true;
         _uI_QuestStatus.ShowQuestStatus(quest);
     }
 
-    void HideQuestStatus()
+    void HideQuestStatusUI()
     {
         _isOpenQuestStatus = false;
         _uI_QuestStatus.HideQuestStatus();
     }
 
-    void UpdateQuestCurser(Quest quest)
+    void UpdateQuestCurserUI(Quest quest)
     {
         _uI_MiniMap.BindQuest(quest);
     }
 
-    void ShowQuestCurser()
+    void ShowQuestCurserUI()
     {
         _uI_MiniMap.ShowQuestCurser();
     }
 
-    void HideQuestCurser()
+    void HideQuestCurserUI()
     {
         _uI_MiniMap.HideQuestCurser();
     }
