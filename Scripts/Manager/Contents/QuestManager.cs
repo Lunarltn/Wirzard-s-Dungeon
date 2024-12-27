@@ -121,7 +121,7 @@ public class Quest
     public int GetRequestCount(int index) => RequestCount == 0 ? 0 : _requests[index * 2 + 1];
     public int GetProgressRequestCount(int index) => RequestCount == 0 ? 0 : _currentRequests[index];
     public bool IsCompleteRequest(int index) => GetRequestCount(index) <= GetProgressRequestCount(index);
-    public void GetReward()
+    public void PayReward()
     {
         for (int i = 0; i < RewardCount; i++)
         {
@@ -142,7 +142,7 @@ public class QuestManager
     UI_QuestStatus _uI_QuestStatus;
     UI_MiniMap _uI_MiniMap;
     Dictionary<int, Quest> _quests;
-    Dictionary<int, int> _preQuests;
+    Dictionary<int, int> _preQuestsID;
     Action _closeAction;
     List<int> _proceedingQuestID;
     bool _isOpenQuestWindow;
@@ -155,7 +155,7 @@ public class QuestManager
         _uI_QuestStatus = Managers.UI.ShowSceneUI<UI_QuestStatus>();
         _uI_MiniMap = Managers.UI.ShowSceneUI<UI_MiniMap>();
         _quests = new Dictionary<int, Quest>();
-        _preQuests = new Dictionary<int, int>();
+        _preQuestsID = new Dictionary<int, int>();
         _proceedingQuestID = new List<int>();
 
         foreach (int key in Managers.Data.QuestDic.Keys)
@@ -163,7 +163,7 @@ public class QuestManager
             _quests.Add(key, new Quest(key, Define.QuestStatus.None, ChangeQuestStatus, UpdateQuestRequestUI));
 
             if (Managers.Data.QuestDic[key].preQuest != 0)
-                _preQuests.Add(Managers.Data.QuestDic[key].preQuest, key);
+                _preQuestsID.Add(Managers.Data.QuestDic[key].preQuest, key);
             else
                 ChangeQuestStatus(key, Define.QuestStatus.Can_Start);
         }
@@ -220,8 +220,8 @@ public class QuestManager
             case Define.QuestStatus.Finished:
                 _proceedingQuestID.Remove(questID);
                 HideQuestStatusUI();
-                if (_preQuests.ContainsKey(questID))
-                    ChangeQuestStatus(_preQuests[questID], Define.QuestStatus.Can_Start);
+                if (_preQuestsID.ContainsKey(questID))
+                    ChangeQuestStatus(_preQuestsID[questID], Define.QuestStatus.Can_Start);
                 else
                     Managers.InfoUI.ShowGameClearWindow();
                 break;
@@ -264,7 +264,7 @@ public class QuestManager
         if (_quests[questID].CompleateCollectionRequest() == false)
             return;
         ChangeQuestStatus(questID, Define.QuestStatus.Finished);
-        _quests[questID].GetReward();
+        _quests[questID].PayReward();
     }
 
     public void OpenQuestWindow(Transform npc, Transform cameraTarget, int npcID, Action closeAction)
